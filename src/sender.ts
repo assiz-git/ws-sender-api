@@ -1,7 +1,5 @@
-import { error } from "console"
 import parsePhoneNumber, { isValidNumber } from "libphonenumber-js"
-import { start } from "repl"
-import { create, Whatsapp, Message, SocketState } from "venom-bot"
+import { create, Whatsapp, SocketState } from "venom-bot"
 
 // export type QRCode = {
 //   base64Qr: string,

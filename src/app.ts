@@ -1,4 +1,3 @@
-import { error } from 'console';
 import express, { Request, Response } from "express"
 import Sender from "./sender";
 
