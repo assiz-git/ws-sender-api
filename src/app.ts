@@ -28,6 +28,32 @@ app.post('/send', async (req: Request, res: Response) => {
   }
 })
 
+app.post('/send/buttons', async (req: Request, res: Response) => {
+  const { number } = req.body
+  
+  try {
+    await sender.sendButtons(number)
+    return res.status(200).json({ status: "OK"})
+  } 
+  catch (error) {
+    console.error(error)
+    return res.status(500).json({ number, message: error})
+  }
+})
+
+app.post('/send/list', async (req: Request, res: Response) => {
+  const { number } = req.body
+  
+  try {
+    await sender.sendListMenu(number)
+    return res.status(200).json({ status: "OK"})
+  } 
+  catch (error) {
+    console.error(error)
+    return res.status(500).json({ number, message: error})
+  }
+})
+
 app.listen(5000, () => {
   console.log('server started')
 })
