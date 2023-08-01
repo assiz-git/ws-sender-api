@@ -1,5 +1,5 @@
-import parsePhoneNumber, { isValidNumber, AsYouType } from "libphonenumber-js"
-import { create, Whatsapp, SocketState } from "venom-bot"
+import parsePhoneNumber, { isValidNumber, AsYouType, PhoneNumber } from "libphonenumber-js"
+import { create, Whatsapp, SocketState, Contact } from "venom-bot"
 
 // export type QRCode = {
 //   base64Qr: string,
@@ -18,11 +18,16 @@ class Sender {
   private connected: boolean
   private qr: QRCode
   private statusSession: string
+  private listContacts: Contact[]
 
   get isConnect() : boolean {
     return this.connected
   }
   
+  get contacts() : Contact[] {
+    return this.listContacts
+  }
+
   get qrCode() : QRCode {
     return this.qr
   }
@@ -42,7 +47,7 @@ class Sender {
     const qr = (base64Qr: string, asciiQR: string, attempts: number | undefined ) => {
       this.qr = { base64Qr, attempts }
     }
-    const start = (client: Whatsapp) => {
+    const start = async (client: Whatsapp) => {
       this.client = client
       //this.sendText('5511996162225@c.us', 'Olá, tudo bem?')
 
@@ -50,7 +55,7 @@ class Sender {
         this.connected = state === SocketState.CONNECTED
       })
 
-      client.onAnyMessage((message) => {
+      client.onMessage((message) => {
         //console.log('message', message)
         console.log('Mensagem recebida')
         console.log('Telefone: ', message.sender.id)
@@ -58,6 +63,7 @@ class Sender {
         let phoneNumber = new AsYouType('BR').input(message.from)
         console.log('Telefone Formatado: ', phoneNumber)
         console.log('Mensagem: ', message.body)
+        console.log('Mensagem:', message)
       })
 
     }
@@ -153,6 +159,35 @@ class Sender {
       .catch((error) => {
         console.error("Error when sending: ", error)
       })
+  }
+
+  async reply(to: string, id: string) {
+    if (!isValidNumber(to, "BR")) {
+      throw new Error('Número do telefone inválido!')
+    }
+    let phoneNumber = parsePhoneNumber(to, "BR")?.format("E.164").replace('+', '') as string
+    phoneNumber = phoneNumber.includes("@c.us")
+      ? phoneNumber
+      : `${phoneNumber}@c.us`
+    const message: string = 'This is a reply!'
+    await this.client.reply(phoneNumber, message, id)
+    .then((result) => {
+      console.log("Result", result)
+    })
+    .catch((error) => {
+      console.error("Error when sending: ", error)
+    })
+  }
+
+  async getContacts() {
+    await this.client.getAllContacts()
+    .then((result) => {
+      //console.log("Result", result)
+      this.listContacts = result
+    })
+    .catch((error) => {
+      console.error("Error when sending: ", error)
+    })
   }
 }
 

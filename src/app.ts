@@ -15,6 +15,18 @@ app.get('/status', (req: Request, res: Response) => {
   })
 })
 
+app.get('/contacts', async (req: Request, res: Response) => {
+  try {
+    await sender.getContacts()
+    const contacts = sender.contacts
+    //console.log("Contatos", contacts)
+    return res.status(200).json(contacts)
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ status: "NOK" })
+  }
+})
+
 app.post('/send', async (req: Request, res: Response) => {
   const { number, message } = req.body
   
@@ -33,6 +45,19 @@ app.post('/send/buttons', async (req: Request, res: Response) => {
   
   try {
     await sender.sendButtons(number)
+    return res.status(200).json({ status: "OK"})
+  } 
+  catch (error) {
+    console.error(error)
+    return res.status(500).json({ number, message: error})
+  }
+})
+
+app.post('/send/reply', async (req: Request, res: Response) => {
+  const { number, id } = req.body
+
+  try {
+    await sender.reply(number, id)
     return res.status(200).json({ status: "OK"})
   } 
   catch (error) {
